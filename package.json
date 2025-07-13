@@ -1,0 +1,26 @@
+{
+  "name": "roller",
+  "version": "0.0.1",
+  "description": "CLI tool for bundling client.js with Rollup",
+  "main": "roller.js",
+  "bin": {
+    "roller": "./roller.js"
+  },
+  "keywords": [
+    "rollup",
+    "bundler",
+    "cli"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@rollup/plugin-commonjs": "^25.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.0",
+    "rollup": "^4.0.0",
+    "rollup-plugin-ignore": "^1.0.10",
+    "rollup-plugin-polyfill-node": "^0.13.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
