@@ -2,13 +2,17 @@
 
 const { log, warn } = console
 
-const { rollup } = require('rollup')
+const { rollup, watch } = require('rollup')
 const commonjs = require('@rollup/plugin-commonjs')
 const { nodeResolve } = require('@rollup/plugin-node-resolve')
 const nodePolyfills = require('rollup-plugin-polyfill-node')
 const ignore = require('rollup-plugin-ignore')
 const { existsSync } = require('fs')
 const { join } = require('path')
+
+// Parse command line args
+const args = process.argv.slice(2)
+const watchMode = args.includes('--watch') || args.includes('-w')
 
 const main = async () => {
   try {
@@ -27,10 +31,7 @@ const main = async () => {
       ? join(staticDir, 'client.bundle.js')
       : join(cwd, 'client.bundle.js')
     
-    log(`Bundling ${inputFile}...`)
-    
-    // Create bundle
-    const bundle = await rollup({
+    const config = {
       input: inputFile,
       plugins: [
         nodeResolve({
@@ -43,19 +44,44 @@ const main = async () => {
           requireReturnsDefault: 'auto'
         }),
         nodePolyfills()
-      ]
-    })
+      ],
+      output: {
+        file: outputFile,
+        format: 'iife',
+        sourcemap: 'inline'
+      }
+    }
     
-    // Write bundle
-    await bundle.write({
-      file: outputFile,
-      format: 'iife',
-      sourcemap: 'inline'
-    })
-    
-    await bundle.close()
-    
-    log(`✓ Bundle created at ${outputFile}`)
+    if (watchMode) {
+      log(`Watching ${inputFile} for changes...`)
+      
+      const watcher = watch(config)
+      
+      watcher.on('event', event => {
+        if (event.code === 'START') {
+          log('Building...')
+        } else if (event.code === 'BUNDLE_END') {
+          log(`✓ Bundle created at ${outputFile} (${event.duration}ms)`)
+        } else if (event.code === 'ERROR') {
+          warn(`Build error: ${event.error.message}`)
+        }
+      })
+      
+      // Handle Ctrl+C
+      process.on('SIGINT', () => {
+        log('\nStopping watcher...')
+        watcher.close()
+        process.exit(0)
+      })
+    } else {
+      log(`Bundling ${inputFile}...`)
+      
+      const bundle = await rollup(config)
+      await bundle.write(config.output)
+      await bundle.close()
+      
+      log(`✓ Bundle created at ${outputFile}`)
+    }
   } catch (error) {
     warn(`Build failed: ${error.message}`)
     process.exit(1)
