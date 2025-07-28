@@ -7,8 +7,9 @@ const commonjs = require('@rollup/plugin-commonjs')
 const { nodeResolve } = require('@rollup/plugin-node-resolve')
 const nodePolyfills = require('rollup-plugin-polyfill-node')
 const ignore = require('rollup-plugin-ignore')
+const babel = require('@rollup/plugin-babel').babel
 const { existsSync } = require('fs')
-const { join } = require('path')
+const { join, dirname } = require('path')
 
 // Parse command line args
 const args = process.argv.slice(2)
@@ -38,6 +39,25 @@ const main = async () => {
           browser: true,
           modulesOnly: false
         }),
+        babel({
+          babelHelpers: 'bundled',
+          presets: [
+            [require.resolve('@babel/preset-env'), {
+              targets: '> 0.25%, not dead',
+              loose: true
+            }]
+          ],
+          plugins: [
+            [require.resolve('@babel/plugin-proposal-pipeline-operator'), { 
+              proposal: 'minimal'
+            }]
+          ],
+          // Make sure Babel processes files from the project directory
+          exclude: 'node_modules/**',
+          babelrc: false,
+          configFile: false
+        }),
+        
         ignore(['inspector']),
         commonjs({
           transformMixedEsModules: true,
