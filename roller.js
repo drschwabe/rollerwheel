@@ -10,6 +10,7 @@ const ignore = require('rollup-plugin-ignore')
 const babel = require('@rollup/plugin-babel').babel
 const { existsSync } = require('fs')
 const { join, dirname } = require('path')
+const json  = require('@rollup/plugin-json') 
 
 // Parse command line args
 const args = process.argv.slice(2)
