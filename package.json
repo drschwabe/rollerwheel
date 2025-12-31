@@ -1,6 +1,6 @@
 {
-  "name": "roller",
-  "version": "0.0.1",
+  "name": "rollerwheel",
+  "version": "0.0.2",
   "description": "CLI tool for bundling client.js with Rollup",
   "main": "roller.js",
   "bin": {
