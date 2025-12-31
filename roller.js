@@ -60,6 +60,7 @@ const main = async () => {
         }),
         
         ignore(['inspector']),
+        json(),  
         commonjs({
           transformMixedEsModules: true,
           requireReturnsDefault: 'auto'
