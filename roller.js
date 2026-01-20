@@ -9,29 +9,38 @@ const nodePolyfills = require('rollup-plugin-polyfill-node')
 const ignore = require('rollup-plugin-ignore')
 const babel = require('@rollup/plugin-babel').babel
 const { existsSync } = require('fs')
-const { join, dirname } = require('path')
+const { join, basename } = require('path')
 const json  = require('@rollup/plugin-json') 
 
 // Parse command line args
 const args = process.argv.slice(2)
 const watchMode = args.includes('--watch') || args.includes('-w')
 
+// Get file parameter (first arg that doesn't start with -)
+const fileArg = args.find(arg => !arg.startsWith('-'))
+const inputFileName = fileArg || 'client.js'
+
 const main = async () => {
   try {
     const cwd = process.cwd()
-    const inputFile = join(cwd, 'client.js')
+    const inputFile = join(cwd, inputFileName)
     
-    // Check if client.js exists
+    // Check if input file exists
     if (!existsSync(inputFile)) {
-      warn(`Error: client.js not found in ${cwd}`)
+      warn(`Error: ${inputFileName} not found in ${cwd}`)
       process.exit(1)
     }
+    
+    // Determine output filename based on input
+    // e.g., client.js -> client.bundle.js, admin-client.js -> admin-client.bundle.js
+    const baseName = basename(inputFileName, '.js')
+    const outputFileName = `${baseName}.bundle.js`
     
     // Determine output path
     const staticDir = join(cwd, 'static')
     const outputFile = existsSync(staticDir) 
-      ? join(staticDir, 'client.bundle.js')
-      : join(cwd, 'client.bundle.js')
+      ? join(staticDir, outputFileName)
+      : join(cwd, outputFileName)
     
     const config = {
       input: inputFile,

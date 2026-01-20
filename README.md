@@ -31,6 +31,10 @@ npx rollerwheel
 
 npx rollerwheel -w 
 #^ same but watches/re-bundles when client.js is edited 
+
+npx rollerwheel admin.js -w 
+#^ reads admin.js and outputs to "admin.bundle.js"
+
 ```
 
 If you have a dir called `static` in the same dir from which you call rollerwheel, the bundle will output to said static dir. 
